@@ -53,6 +53,7 @@ def preprocess(wave):
     return mel_tensor
 
 def compute_style(path):
+    print("starting to compute the style")
     wave, sr = librosa.load(path, sr=24000)
     audio, index = librosa.effects.trim(wave, top_db=30)
     if sr != 24000:
@@ -62,6 +63,8 @@ def compute_style(path):
     with torch.no_grad():
         ref_s = model.style_encoder(mel_tensor.unsqueeze(1))
         ref_p = model.predictor_encoder(mel_tensor.unsqueeze(1))
+
+    print("style computed")
 
     return torch.cat([ref_s, ref_p], dim=1)
 
