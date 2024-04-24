@@ -98,7 +98,7 @@ def serve_wav_stream():
 
 
 @app.route("/api/v1/static", methods=['POST'])
-def serve_wav():
+def serve_wav(): 
     if 'text' not in request.form or 'voice' not in request.form:
         error_response = {'error': 'Missing required fields. Please include "text" and "voice" in your request.'}
         return jsonify(error_response), 400
