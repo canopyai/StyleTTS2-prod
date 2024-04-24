@@ -7,6 +7,7 @@ torch.manual_seed(0)
 torch.backends.cudnn.benchmark = False
 torch.backends.cudnn.deterministic = True
 from collections import OrderedDict
+from load_balancing.utils import get_device_names
 
 import random
 random.seed(0)
@@ -132,16 +133,6 @@ def initialize_and_load_model(device='cpu'):
 
 
 
-def get_device_names():
-    device_names = []
-    if torch.cuda.is_available():
-        device_count = torch.cuda.device_count()
-        for i in range(device_count):
-            device = torch.cuda.get_device_name(i)
-            device_names.append(f"cuda:{i}")
-    else:
-        device_names.append("cpu")
-    return device_names
 
 device_names = get_device_names()
 

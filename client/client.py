@@ -33,8 +33,8 @@ def send_text_to_speech_request(stream_index):
             audio_data = base64.b64decode(audio_base64)
             random_file_name = f"outputs/{uuid.uuid4().hex}.wav"
             os.makedirs(os.path.dirname(random_file_name), exist_ok=True)
-            with open(random_file_name, 'wb') as f:
-                f.write(audio_data)
+            # with open(random_file_name, 'wb') as f:
+            #     f.write(audio_data)
             print(f"Audio saved to {random_file_name}")
         else:
             print(f"Error: {response.status_code} - {response.text}")
