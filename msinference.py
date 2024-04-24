@@ -147,7 +147,7 @@ device_names = get_device_names()
 
 model_dicts = []
 
-for device_name in device_names:    
+for device_name in device_names[0:1]:    
     print(f"Initializing model on {device_name}")
     model, sampler, model_params = initialize_and_load_model(device_name)
     model_dicts.append({
