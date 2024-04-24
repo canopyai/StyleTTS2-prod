@@ -75,10 +75,11 @@ def serve_wav():
     alpha_ = float(request.form.get('alpha')) 
     beta_ = float(request.form.get('beta'))
     speed = float(request.form.get('speed'))
+    stream_index = int(request.form.get('stream_index'))
     embedding_scale = float(request.form.get('embedding_scale'))
     parseRequestTime = time.time()
     audios = []
-    stream, index = get_available_stream()
+    stream, index = streams[stream_index], stream_index
     print("stream is", stream)
     synth_audio = synthesize(text, steps, alpha_, beta_, request.form['voice'], speed, embedding_scale=1.0, stream=stream)
     synth_audio_time = time.time()

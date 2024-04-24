@@ -8,7 +8,7 @@ ping_url = 'http://34.141.243.146:8080/ping'
 
 text = '''That's "great news"! Congratulations man!'''
 
-def send_text_to_speech_request():
+def send_text_to_speech_request(stream_index):
     # Parameters to send to the API
     data = {
         'text': text,
@@ -17,7 +17,8 @@ def send_text_to_speech_request():
         'alpha': 0.2,
         'beta': 0.7,
         'speed': 0.8, 
-        "embedding_scale":1
+        "embedding_scale":1, 
+        "stream_index": stream_index
     }
     
     # Send POST request to the API
@@ -27,8 +28,9 @@ def send_text_to_speech_request():
 
 
 # Modified function to include timing
-def timed_send_text_to_speech_request(start_time):
-    send_text_to_speech_request()
+def timed_send_text_to_speech_request(start_time, stream_index):
+    print(f"Sending request {stream_index}")
+    send_text_to_speech_request(stream_index)
     print(f"Time taken: {time.time() - start_time} seconds")
     return time.time() - start_time
 
@@ -36,7 +38,7 @@ def spam_requests(num_requests):
     startTime = time.time()
     with concurrent.futures.ThreadPoolExecutor(max_workers=num_requests) as executor:
         # Submitting the timed version of the function and collecting future objects
-        futures = [executor.submit(timed_send_text_to_speech_request, startTime) for _ in range(num_requests)]
+        futures = [executor.submit(timed_send_text_to_speech_request, startTime, _) for _ in range(num_requests)]
         # Retrieving results as they complete
         latencies = [future.result() for future in concurrent.futures.as_completed(futures)]
     
