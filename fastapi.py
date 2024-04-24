@@ -84,6 +84,7 @@ async def serve_wav():
 
     parse_request_time = time.time()
     synth_audio = synthesize(text, steps, alpha, beta, voice, speed, embedding_scale, device_index)
+    write('result.wav', 24000, synth_audio)
     print(synth_audio)
 
     synth_audio_time = time.time()
