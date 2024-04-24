@@ -8,7 +8,10 @@ import numpy as np
 import msinference
 from flask_cors import CORS
 import time
-from multiprocessing import Process, Queue
+from fastapi import FastAPI
+
+app = FastAPI()
+
 
 
 
@@ -87,36 +90,36 @@ def handle_inference(queue, text, steps, alpha_, beta_, voice, speed, embedding_
         queue.put(str(e))
 
 
-
-@app.route("/api/v1/static", methods=['POST'])
-def serve_wav():
+@app.post("/api/v1/static")
+async def serve_wav(): 
+    print("Received request")
+    startTime = time.time()
     if 'text' not in request.form or 'voice' not in request.form:
-        return jsonify({'error': 'Missing required fields. Please include "text" and "voice" in your request.'}), 400
-
-    queue = Queue()
+        error_response = {'error': 'Missing required fields. Please include "text" and "voice" in your request.'}
+        return jsonify(error_response), 400
     text = request.form['text'].strip()
-    steps = int(request.form.get('steps', 5))
-    alpha_ = float(request.form.get('alpha', 0.3))
-    beta_ = float(request.form.get('beta', 0.7))
-    speed = float(request.form.get('speed', 1.0))
-    device_index = int(request.form.get('device_index', 0))
-    embedding_scale = float(request.form.get('embedding_scale', 1.0))
+    steps = int(request.form.get('steps'))
+    alpha_ = float(request.form.get('alpha')) 
+    beta_ = float(request.form.get('beta'))
+    speed = float(request.form.get('speed'))
+    device_index = int(request.form.get('device_index'))
+    embedding_scale = float(request.form.get('embedding_scale'))
+    parseRequestTime = time.time()
+    audios = []
+    synth_audio = synthesize(text, steps, alpha_, beta_, request.form['voice'], speed, embedding_scale=1.0, device_index=device_index)
+    synth_audio_time = time.time()
 
-    # Create a new process to handle the inference
-    proc = Process(target=handle_inference, args=(queue, text, steps, alpha_, beta_, request.form['voice'], speed, embedding_scale, device_index))
-    proc.start()
-    proc.join()
-
-    # Retrieve the result from the queue
-    result = queue.get()
-
-    # Check if the result is an error message
-    if isinstance(result, str):
-        return jsonify({'error': result}), 500
-
-    response = Response(result)
-    response.headers["Content-Type"] = "audio/wav"
-    return response
+    print(f"Time taken to synthesize audio: {synth_audio_time - parseRequestTime} seconds")
+    audios.append(synth_audio)
+    output_buffer = io.BytesIO()
+    write(output_buffer, 24000, np.concatenate(audios))
+    # response = Response(output_buffer.getvalue())
+    # response.headers["Content-Type"] = "audio/wav"
+    # endTime = time.time()
+    # writeTime = time.time()
+    # print(f"Time taken to write audio: {writeTime - synth_audio_time} seconds")
+    # print(f"Time taken: {endTime - startTime} seconds")
+    return "response"
 
 
 
