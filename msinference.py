@@ -25,6 +25,13 @@ from models import *
 from utils import *
 from text_utils import TextCleaner
 textclenaer = TextCleaner()
+from Utils.PLBERT.util import load_plbert
+import phonemizer
+global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_punctuation=True,  with_stress=True)
+from Modules.diffusion.sampler import DiffusionSampler, ADPM2Sampler, KarrasSchedule
+
+
+
 
 
 
@@ -68,10 +75,6 @@ elif torch.backends.mps.is_available():
     # print("MPS would be available but cannot be used rn")
     pass
     # device = 'mps'
-
-import phonemizer
-global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_punctuation=True,  with_stress=True)
-
 
 
 
@@ -127,6 +130,7 @@ def initialize_and_load_model():
 
 # Now you can use this function to initialize and load your model and sampler
 model, sampler = initialize_and_load_model()
+
 
 
 
