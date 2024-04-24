@@ -63,13 +63,11 @@ def compute_style(path):
         audio, index = librosa.effects.trim(wave, top_db=30)
         if sr != 24000:
             audio = librosa.resample(audio, sr, 24000)
-        mel_tensor = preprocess(audio).to("cuda:0")
+        mel_tensor = preprocess(audio).to(device_names[device_index])
 
         with torch.no_grad():
             ref_s = model.style_encoder(mel_tensor.unsqueeze(1))
             ref_p = model.predictor_encoder(mel_tensor.unsqueeze(1))
-
-        print("style computed")
         voice_tensors.append(torch.cat([ref_s, ref_p], dim=1))
         
 
