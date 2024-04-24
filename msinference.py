@@ -19,7 +19,6 @@ import random
 import yaml
 from munch import Munch
 import numpy as np
-import torch
 from torch import nn
 import torch.nn.functional as F
 import torchaudio
@@ -126,7 +125,7 @@ sampler = DiffusionSampler(
     clamp=False
 )
 
-def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1, use_gruut=False):
+def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1, speed = 1, use_gruut=False):
     text = text.strip()
     ps = global_phonemizer.phonemize([text])
     ps = word_tokenize(ps[0])
@@ -163,7 +162,7 @@ def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding
         duration = model.predictor.duration_proj(x)
 
         duration = torch.sigmoid(duration).sum(axis=-1)
-        pred_dur = torch.round(duration.squeeze()).clamp(min=1)
+        pred_dur = torch.round(duration.squeeze() * speed).clamp(min=1)
 
 
         pred_aln_trg = torch.zeros(input_lengths, int(pred_dur.sum().data))

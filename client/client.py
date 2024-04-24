@@ -6,7 +6,7 @@ url = 'http://34.32.135.27:8080/api/v1/static'
 # Data to be sent to the API
 data = {
     'text': 'Hello, this is a test of the TTS system.',
-    'voice': 'example_voice'
+    'voice': 'm-us-1'
 }
 
 # Send a POST request
