@@ -53,20 +53,27 @@ def preprocess(wave):
     return mel_tensor
 
 def compute_style(path):
-    print("starting to compute the style")
-    wave, sr = librosa.load(path, sr=24000)
-    audio, index = librosa.effects.trim(wave, top_db=30)
-    if sr != 24000:
-        audio = librosa.resample(audio, sr, 24000)
-    mel_tensor = preprocess(audio).to("cuda:0")
 
-    with torch.no_grad():
-        ref_s = model.style_encoder(mel_tensor.unsqueeze(1))
-        ref_p = model.predictor_encoder(mel_tensor.unsqueeze(1))
+    voice_tensors = []
 
-    print("style computed")
+    for device_index in range(len(device_names)):
+        model, sampler, model_params = model_dicts(device_index)
+        print("starting to compute the style")
+        wave, sr = librosa.load(path, sr=24000)
+        audio, index = librosa.effects.trim(wave, top_db=30)
+        if sr != 24000:
+            audio = librosa.resample(audio, sr, 24000)
+        mel_tensor = preprocess(audio).to("cuda:0")
 
-    return torch.cat([ref_s, ref_p], dim=1)
+        with torch.no_grad():
+            ref_s = model.style_encoder(mel_tensor.unsqueeze(1))
+            ref_p = model.predictor_encoder(mel_tensor.unsqueeze(1))
+
+        print("style computed")
+        voice_tensors.append(torch.cat([ref_s, ref_p], dim=1))
+        
+
+    return voice_tensors
 
 
 
@@ -123,8 +130,7 @@ def initialize_and_load_model(device='cpu'):
     
     return model, sampler, model_params
 
-# Now you can use this function to initialize and load your model and sampler
-model, sampler, model_params = initialize_and_load_model("cuda:0")
+
 
 
 def get_device_names():

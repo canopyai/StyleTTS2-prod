@@ -45,7 +45,7 @@ cors = CORS(app)
 
 def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice = 'm-us-3', speed = 1.0, embedding_scale = 1.0,device='cuda:0'):
     torch.cuda.set_device(device)
-    return msinference.inference(text, voices[voice], alpha=alpha_, beta=beta_, diffusion_steps=steps, embedding_scale=embedding_scale, speed=speed)
+    return msinference.inference(text, voices[voice][0], alpha=alpha_, beta=beta_, diffusion_steps=steps, embedding_scale=embedding_scale, speed=speed)
 
 @app.route("/ping", methods=['GET'])
 def ping():
