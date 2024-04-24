@@ -67,16 +67,6 @@ def compute_style(path):
 
 
 
-device = 'cpu'
-if torch.cuda.is_available():
-    print("switching device 1")
-    device = 'cuda:0'
-    print("switched device 1")
-elif torch.backends.mps.is_available():
-    # print("MPS would be available but cannot be used rn")
-    pass
-    # device = 'mps'
-
 
 
 
@@ -134,11 +124,45 @@ def initialize_and_load_model(device='cpu'):
 model, sampler, model_params = initialize_and_load_model("cuda:0")
 
 
+def get_device_names():
+    device_names = []
+    if torch.cuda.is_available():
+        device_count = torch.cuda.device_count()
+        for i in range(device_count):
+            device = torch.cuda.get_device_name(i)
+            device_names.append(device)
+    else:
+        device_names.append("cpu")
+    return device_names
+
+device_names = get_device_names()
+
+model_dicts = []
+
+for device_name in device_names:    
+    model, sampler, model_params = initialize_and_load_model(device_name)
+    model_dicts.append({
+        "device_name": device_name,
+        "model": model,
+        "sampler": sampler,
+        "model_params": model_params
+    })
 
 
 
 
-def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1, speed = 1, use_gruut=False, selected_device=0):
+
+
+
+def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1, speed = 1, use_gruut=False, device_index=0):
+        
+        device = device_names[device_index]
+        
+        model = model_dicts[0]["model"]
+        sampler = model_dicts[0]["sampler"]
+        model_params = model_dicts[0]["model_params"]
+        
+
         text = text.strip()
         ps = global_phonemizer.phonemize([text])
         ps = word_tokenize(ps[0])
