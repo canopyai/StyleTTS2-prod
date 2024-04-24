@@ -70,7 +70,7 @@ def compute_style(path):
 device = 'cpu'
 if torch.cuda.is_available():
     print("switching device 1")
-    device = 'cuda'
+    device = 'cuda:0'
     print("switched device 1")
 elif torch.backends.mps.is_available():
     # print("MPS would be available but cannot be used rn")
@@ -79,10 +79,12 @@ elif torch.backends.mps.is_available():
 
 
 
-def initialize_and_load_model():
+
+def initialize_and_load_model(device='cpu'):
     # Load configuration
     config_path = "hf://yl4579/StyleTTS2-LibriTTS/Models/LibriTTS/config.yml"
-    config = yaml.safe_load(open(str(cached_path(config_path))))
+    with open(str(cached_path(config_path)), 'r') as file:
+        config = yaml.safe_load(file)
 
     # Load models based on configuration
     ASR_config = config.get('ASR_config', False)
@@ -99,8 +101,7 @@ def initialize_and_load_model():
     model_params = recursive_munch(config['model_params'])
     model = build_model(model_params, text_aligner, pitch_extractor, plbert)
 
-    # Set models to evaluation mode and to the appropriate device
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # Set models to evaluation mode and move them to the specified device
     _ = [model[key].eval() for key in model]
     _ = [model[key].to(device) for key in model]
 
@@ -130,7 +131,7 @@ def initialize_and_load_model():
     return model, sampler, model_params
 
 # Now you can use this function to initialize and load your model and sampler
-model, sampler, model_params = initialize_and_load_model()
+model, sampler, model_params = initialize_and_load_model("cuda:0")
 
 
 
