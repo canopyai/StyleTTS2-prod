@@ -64,6 +64,7 @@ async def ping():
 
 @app.post("/api/v1/static")
 async def serve_wav(request: TextToSpeechRequest):
+    startTime = time.time()
     synth_audio = synthesize(
         request.text, request.steps, request.alpha, request.beta, 
         request.voice, request.speed, request.embedding_scale, request.device_index
