@@ -1,5 +1,3 @@
-import eventlet
-eventlet.monkey_patch()
 import io
 from flask import Flask, Response, request, jsonify
 from scipy.io.wavfile import write
@@ -99,4 +97,4 @@ def serve_wav():
     release_stream(index)
     return response
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=8080, threaded=True)

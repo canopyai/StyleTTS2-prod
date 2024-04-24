@@ -29,7 +29,6 @@ def send_text_to_speech_request(stream_index):
 
 # Modified function to include timing
 def timed_send_text_to_speech_request(start_time, stream_index):
-    print(f"Sending request {stream_index}")
     send_text_to_speech_request(stream_index)
     print(f"Time taken: {time.time() - start_time} seconds")
     return time.time() - start_time
