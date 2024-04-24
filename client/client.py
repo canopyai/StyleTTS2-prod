@@ -15,6 +15,9 @@ text = '''That's "great news"! Congratulations man!'''
 
 
 def send_text_to_speech_request(stream_index):
+    sleep_time = 0.1 * stream_index
+    time.sleep(sleep_time)
+    startTime = time.time()
     data = {
         'text': "Your text to convert to speech", 
         'voice': "m-us-3",
@@ -35,7 +38,8 @@ def send_text_to_speech_request(stream_index):
             os.makedirs(os.path.dirname(random_file_name), exist_ok=True)
             # with open(random_file_name, 'wb') as f:
             #     f.write(audio_data)
-            print(f"Audio saved to {random_file_name}")
+            end_time = time.time()
+            print(f"Time taken: {end_time - startTime} seconds")
         else:
             print(f"Error: {response.status_code} - {response.text}")
 
@@ -44,27 +48,17 @@ def send_text_to_speech_request(stream_index):
     except Exception as e:
         print(f"An error occurred: {e}")
 
+
 # Modified function to include timing
 def timed_send_text_to_speech_request(start_time, stream_index):
     send_text_to_speech_request(stream_index)
-    print(f"Time taken: {time.time() - start_time} seconds")
     return time.time() - start_time
 
 def spam_requests(num_requests):
     startTime = time.time()
     with concurrent.futures.ThreadPoolExecutor(max_workers=num_requests) as executor:
-        # Submitting the timed version of the function and collecting future objects
         futures = [executor.submit(timed_send_text_to_speech_request, startTime, _) for _ in range(num_requests)]
-        # Retrieving results as they complete
-        latencies = [future.result() for future in concurrent.futures.as_completed(futures)]
-    
-    # Calculating average latency
-    
-    endTime = time.time()
 
-    print(f"Total time taken: {endTime - startTime} seconds")
-
-    return latencies
 
 # Number of concurrent requests
 num_requests = 4
