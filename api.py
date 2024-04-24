@@ -101,4 +101,4 @@ def serve_wav():
     print(f"Time taken: {endTime - startTime} seconds")
     return response
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, threaded=False)
+    app.run(host="0.0.0.0", port=8080, threaded=True)
