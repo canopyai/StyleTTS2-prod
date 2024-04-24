@@ -23,7 +23,7 @@ def send_text_to_speech_request():
     # Send POST request to the API
     response = requests.post(api_url, data=data)
    
-    print("***",response.content)
+    print("***",response)
 
 
 # Modified function to include timing
