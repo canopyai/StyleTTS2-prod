@@ -51,7 +51,7 @@ def ping():
 
 
 
-@app.route("/api/v1/static", methods=['POST'])
+@app.route("/api/v1/simulate", methods=['POST'])
 def simulate_inference():
     if 'text' not in request.form or 'voice' not in request.form:
         error_response = {'error': 'Missing required fields. Please include "text" and "voice" in your request.'}
