@@ -2,7 +2,7 @@ import requests
 import time
 import concurrent.futures
 
-api_url = 'http://34.69.125.197:8080/api/v1/static'
+api_url = 'http://35.234.101.2:8080/api/v1/static'
 # api_url = 'http://127.0.0.1:8080/api/v1/static'
 ping_url = 'http://34.141.243.146:8080/ping'
 
@@ -13,7 +13,7 @@ def send_text_to_speech_request(stream_index):
     data = {
         'text': text,
         'voice': "m-us-3", 
-        'steps': 13, 
+        'steps': 10, 
         'alpha': 0.2,
         'beta': 0.7,
         'speed': 0.8, 

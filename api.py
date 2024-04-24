@@ -33,7 +33,7 @@ def genHeader(sampleRate, bitsPerSample, channels):
 voicelist = ['f-us-1', 'f-us-2', 'f-us-3', 'f-us-4', 'm-us-1', 'm-us-2', 'm-us-3', 'm-us-4']
 voices = {}
 import phonemizer
-global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_punctuation=True,  with_stress=True)
+global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_punctuation=True,  with_stress=True, )
 print("Computing voices")
 for v in voicelist:
     voices[v] = msinference.compute_style(f'voices/{v}.wav')
@@ -43,7 +43,8 @@ app = Flask(__name__)
 cors = CORS(app)
 
 
-def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice = 'm-us-3', speed = 1.0, embedding_scale = 1.0,):
+def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice = 'm-us-3', speed = 1.0, embedding_scale = 1.0,device='cuda:0'):
+    torch.cuda.set_device(device)
     return msinference.inference(text, voices[voice], alpha=alpha_, beta=beta_, diffusion_steps=steps, embedding_scale=embedding_scale, speed=speed)
 
 @app.route("/ping", methods=['GET'])
