@@ -9,7 +9,7 @@ import msinference
 from flask_cors import CORS
 import time
 import torch
-from fastapi import FastAPI 
+from fastapi import FastAPI, Response
 
 
 
@@ -72,39 +72,25 @@ async def simulate_inference():
 
 
 @app.post("/api/v1/static")
-async def serve_wav(): 
-    # print("Received request")
-    # startTime = time.time()
-    # if 'text' not in request.form or 'voice' not in request.form:
-    #     error_response = {'error': 'Missing required fields. Please include "text" and "voice" in your request.'}
-    #     return jsonify(error_response), 400
-    # text = request.form['text'].strip()
-    # steps = int(request.form.get('steps'))
-    # alpha_ = float(request.form.get('alpha')) 
-    # beta_ = float(request.form.get('beta'))
-    # speed = float(request.form.get('speed'))
-    # device_index = int(request.form.get('device_index'))
-    # embedding_scale = float(request.form.get('embedding_scale'))
+async def serve_wav():
     text = "Hello"
     steps = 10
-    alpha_ = 0.1
-    beta_ = 0.1
+    alpha = 0.1
+    beta = 0.1
     speed = 1.0
     device_index = 0
-    embedding_scale = 1.0   
+    embedding_scale = 1.0
     voice = "m-us-3"
-    device_index = 0
-    parseRequestTime = time.time()
-    audios = []
-    synth_audio = synthesize(text, steps, alpha_, beta_, voice, speed, embedding_scale=1.0, device_index=device_index)
+
+    parse_request_time = time.time()
+    synth_audio = synthesize(text, steps, alpha, beta, voice, speed, embedding_scale, device_index)
     synth_audio_time = time.time()
 
-    print(f"Time taken to synthesize audio: {synth_audio_time - parseRequestTime} seconds")
-    audios.append(synth_audio)
+    print(f"Time taken to synthesize audio: {synth_audio_time - parse_request_time} seconds")
+
     output_buffer = io.BytesIO()
-    write(output_buffer, 24000, np.concatenate(audios))
-    response_content = output_buffer.getvalue()
-    return {
-        "content_type": "audio/wav",
-        "audio_data": response_content
-    }
+    # Assume audio sample rate is 24000 Hz, update accordingly
+    write(output_buffer, 24000, synth_audio.astype(np.int16))
+    output_buffer.seek(0)  # Rewind buffer to the beginning
+
+    return Response(content=output_buffer.getvalue(), media_type="audio/wav")
