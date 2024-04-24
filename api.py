@@ -1,23 +1,11 @@
-# StyleTTS 2 HTTP Streaming API by @fakerybakery - Copyright (c) 2023 mrfakename. All rights reserved.
-# Docs: API_DOCS.md
-# To-Do:
-# * Support voice cloning
-# * Implement authentication, user "credits" system w/ SQLite3
+
 import io
-import os
-import hashlib
-import threading
-import markdown
-import re
-import json
-from tortoise.utils.text import split_and_recombine_text
 from flask import Flask, Response, request, jsonify
 from scipy.io.wavfile import write
 import numpy as np
-import ljinference
 import msinference
-import torch
 from flask_cors import CORS
+import time
 
 
 def genHeader(sampleRate, bitsPerSample, channels):
@@ -49,73 +37,41 @@ print("Starting Flask app")
 app = Flask(__name__)
 cors = CORS(app)
 
-@app.route("/")
-def index():
-    with open('API_DOCS.md', 'r') as f:
-        return markdown.markdown(f.read())
 
-def synthesize(text, voice, steps):
-    v = voice.lower()
-    return msinference.inference(t, voices[v], alpha=0.3, beta=0.7, diffusion_steps=lngsteps, embedding_scale=1)
-def ljsynthesize(text, steps):
-    return ljinference.inference(text, torch.randn(1,1,256).to('cuda' if torch.cuda.is_available() else 'cpu'), diffusion_steps=7, embedding_scale=1)
-# def ljsynthesize(text):
-#     texts = split_and_recombine_text(text)
-#     v = voice.lower()
-#     audios = []
-#     noise = torch.randn(1,1,256).to('cuda' if torch.cuda.is_available() else 'cpu')
-#     for t in texts:
-#         audios.append(ljinference.inference(text, noise, diffusion_steps=7, embedding_scale=1))
-#     return np.concatenate(audios)
+def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice = 'm-us-3', speed = 1.0, embedding_scale = 1.0):
+    return msinference.inference(text, voices[voice], alpha=alpha_, beta=beta_, diffusion_steps=steps, embedding_scale=embedding_scale, speed=speed)
 
-@app.route("/api/v1/stream", methods=['POST'])
-def serve_wav_stream():
-    if 'text' not in request.form or 'voice' not in request.form:
-        error_response = {'error': 'Missing required fields. Please include "text" and "voice" in your request.'}
-        return jsonify(error_response), 400
-    text = request.form['text'].strip()
-    voice = request.form['voice'].strip().lower()
-    if not voice in voices:
-        error_response = {'error': 'Invalid voice selected'}
-        return jsonify(error_response), 400
-    v = voices[voice]
-    texts = split_and_recombine_text(text)
-    def generate():
-        wav_header = genHeader(24000, 16, 1)
-        is_first_chunk = True
-        for t in texts:
-            wav = msinference.inference(t, voice, alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1)
-            output_buffer = io.BytesIO()
-            write(output_buffer, 24000, wav)
-            output_buffer.read(44)
-            if is_first_chunk:
-                data = wav_header + wav_file.read()
-                is_first_chunk = False
-            else:
-                data = wav_file.read()
-            yield data
-    return Response(generate(), mimetype="audio/x-wav")
-
+@app.route("/ping", methods=['GET'])
+def ping():
+    return "Pong"
 
 @app.route("/api/v1/static", methods=['POST'])
 def serve_wav(): 
+    print("Received request")
+    startTime = time.time()
     if 'text' not in request.form or 'voice' not in request.form:
         error_response = {'error': 'Missing required fields. Please include "text" and "voice" in your request.'}
         return jsonify(error_response), 400
     text = request.form['text'].strip()
-    voice = request.form['voice'].strip().lower()
-    if not voice in voices:
-        error_response = {'error': 'Invalid voice selected'}
-        return jsonify(error_response), 400
-    v = voices[voice]
-    texts = split_and_recombine_text(text)
+    steps = int(request.form.get('steps'))
+    alpha_ = float(request.form.get('alpha')) 
+    beta_ = float(request.form.get('beta'))
+    speed = float(request.form.get('speed'))
+    embedding_scale = float(request.form.get('embedding_scale'))
+    parseRequestTime = time.time()
     audios = []
-    for t in texts:
-        audios.append(msinference.inference(t, voice, alpha=0.3, beta=0.7, diffusion_steps=7, embedding_scale=1))
+    synth_audio = synthesize(text, steps, alpha_, beta_, request.form['voice'], speed, embedding_scale=1.0)
+    synth_audio_time = time.time()
+    print(f"Time taken to synthesize audio: {synth_audio_time - parseRequestTime} seconds")
+    audios.append(synth_audio)
     output_buffer = io.BytesIO()
     write(output_buffer, 24000, np.concatenate(audios))
     response = Response(output_buffer.getvalue())
     response.headers["Content-Type"] = "audio/wav"
+    endTime = time.time()
+    writeTime = time.time()
+    print(f"Time taken to write audio: {writeTime - synth_audio_time} seconds")
+    print(f"Time taken: {endTime - startTime} seconds")
     return response
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
