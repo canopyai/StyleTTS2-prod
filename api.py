@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+
 import io
 from flask import Flask, Response, request, jsonify
 from scipy.io.wavfile import write
