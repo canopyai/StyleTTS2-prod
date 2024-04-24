@@ -70,7 +70,7 @@ def compute_style(path):
 device = 'cpu'
 if torch.cuda.is_available():
     print("switching device 1")
-    device = 'cuda:1'
+    device = 'cuda'
     print("switched device 1")
 elif torch.backends.mps.is_available():
     # print("MPS would be available but cannot be used rn")
