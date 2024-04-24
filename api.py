@@ -49,6 +49,27 @@ def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice = 'm-us-3', sp
 def ping():
     return "Pong"
 
+
+
+@app.route("/api/v1/static", methods=['POST'])
+def simulate_inference():
+    if 'text' not in request.form or 'voice' not in request.form:
+        error_response = {'error': 'Missing required fields. Please include "text" and "voice" in your request.'}
+        return jsonify(error_response), 400
+    text = request.form['text'].strip()
+    steps = int(request.form.get('steps'))
+    alpha_ = float(request.form.get('alpha')) 
+    beta_ = float(request.form.get('beta'))
+    speed = float(request.form.get('speed'))
+    device_index = int(request.form.get('device_index'))
+    embedding_scale = float(request.form.get('embedding_scale'))
+    audios = []
+    sleep_time = 0.3
+    time.sleep(sleep_time)
+    return "response"
+
+
+
 @app.route("/api/v1/static", methods=['POST'])
 def serve_wav(): 
     print("Received request")
