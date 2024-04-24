@@ -6,7 +6,21 @@ import numpy as np
 import msinference
 from flask_cors import CORS
 import time
+import torch
 
+num_streams = 4
+streams = [torch.cuda.Stream() for _ in range(num_streams)]
+stream_usage = [False] * num_streams  # False means available
+
+def get_available_stream():
+    for i in range(num_streams):
+        if not stream_usage[i]:
+            stream_usage[i] = True
+            return streams[i], i
+    return None, None
+
+def release_stream(index):
+    stream_usage[index] = False
 
 def genHeader(sampleRate, bitsPerSample, channels):
     datasize = 2000 * 10**6
@@ -38,8 +52,8 @@ app = Flask(__name__)
 cors = CORS(app)
 
 
-def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice = 'm-us-3', speed = 1.0, embedding_scale = 1.0):
-    return msinference.inference(text, voices[voice], alpha=alpha_, beta=beta_, diffusion_steps=steps, embedding_scale=embedding_scale, speed=speed)
+def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice = 'm-us-3', speed = 1.0, embedding_scale = 1.0, stream = streams[0]):
+    return msinference.inference(text, voices[voice], alpha=alpha_, beta=beta_, diffusion_steps=steps, embedding_scale=embedding_scale, speed=speed, stream =stream)
 
 @app.route("/ping", methods=['GET'])
 def ping():
@@ -60,8 +74,12 @@ def serve_wav():
     embedding_scale = float(request.form.get('embedding_scale'))
     parseRequestTime = time.time()
     audios = []
-    synth_audio = synthesize(text, steps, alpha_, beta_, request.form['voice'], speed, embedding_scale=1.0)
+    stream, index = get_available_stream()
+    synth_audio = synthesize(text, steps, alpha_, beta_, request.form['voice'], speed, embedding_scale=1.0, stream=stream)
     synth_audio_time = time.time()
+    if stream is None:
+        return jsonify({"error": "All streams are busy"}), 503  # Service Unavailable
+
     print(f"Time taken to synthesize audio: {synth_audio_time - parseRequestTime} seconds")
     audios.append(synth_audio)
     output_buffer = io.BytesIO()
