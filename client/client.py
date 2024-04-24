@@ -17,10 +17,11 @@ def send_text_to_speech_request(stream_index):
         'alpha': 0.2,
         'beta': 0.7,
         'speed': 0.8, 
-        "embedding_scale":1, 
-        "stream_index": stream_index
+        "embedding_scale":1,
+        "device_index": stream_index,
     }
     
+    print(data)
     # Send POST request to the API
     response = requests.post(api_url, data=data)
    

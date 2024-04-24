@@ -153,7 +153,7 @@ for device_name in device_names:
         "device_name": device_name,
         "model": model,
         "sampler": sampler,
-        "model_params": model_params
+        "model_params": model_params, 
     })
 
 
@@ -165,6 +165,8 @@ for device_name in device_names:
 
 
 def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1, speed = 1, use_gruut=False, device_index=0):
+        
+        print(f"Using device {device_index}")
         
         device = device_names[device_index]
         
