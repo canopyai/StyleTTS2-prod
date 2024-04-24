@@ -10,6 +10,15 @@ from munch import Munch
 num_gpus = 8  # Total number of GPUs available
 models = {}   # Dictionary to store models by GPU index
 
+def recursive_munch(data):
+    """
+    Recursively convert a nested dictionary into a Munch object.
+    """
+    if isinstance(data, dict):
+        return Munch({k: recursive_munch(v) for k, v in data.items()})
+    return data
+
+
 def initialize_models():
     # Load configuration from a hosted YAML file
     config_path = cached_path("hf://yl4579/StyleTTS2-LibriTTS/Models/LibriTTS/config.yml")
