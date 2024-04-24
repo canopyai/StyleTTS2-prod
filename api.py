@@ -14,6 +14,8 @@ num_streams = 4
 streams = [torch.cuda.Stream() for _ in range(num_streams)]
 stream_usage = [False] * num_streams  # False means available
 
+print("all streams are", streams)
+
 def get_available_stream():
     for i in range(num_streams):
         if not stream_usage[i]:
