@@ -193,7 +193,7 @@ def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding
             out = model.decoder(asr,
                                     F0_pred, N_pred, ref.squeeze().unsqueeze(0))
 
-
+        torch.cuda.synchronize() 
         return out.squeeze().cpu().numpy()[..., :-50] # weird pulse at the end of the model, need to be fixed later
 
 def LFinference(text, s_prev, ref_s, alpha = 0.3, beta = 0.7, t = 0.7, diffusion_steps=5, embedding_scale=1, use_gruut=False):
