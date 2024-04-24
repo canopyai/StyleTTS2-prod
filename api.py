@@ -10,22 +10,8 @@ from flask_cors import CORS
 import time
 import torch
 
-print(torch.cuda.Stream())
-num_streams = 4
-streams = [torch.cuda.Stream() for _ in range(num_streams)]
-stream_usage = [False] * num_streams  # False means available
 
-print("all streams are", streams)
 
-def get_available_stream():
-    for i in range(num_streams):
-        if not stream_usage[i]:
-            stream_usage[i] = True
-            return streams[i], i
-    return None, None
-
-def release_stream(index):
-    stream_usage[index] = False
 
 def genHeader(sampleRate, bitsPerSample, channels):
     datasize = 2000 * 10**6
@@ -57,8 +43,8 @@ app = Flask(__name__)
 cors = CORS(app)
 
 
-def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice = 'm-us-3', speed = 1.0, embedding_scale = 1.0, stream = streams[0]):
-    return msinference.inference(text, voices[voice], alpha=alpha_, beta=beta_, diffusion_steps=steps, embedding_scale=embedding_scale, speed=speed, stream =stream)
+def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice = 'm-us-3', speed = 1.0, embedding_scale = 1.0,):
+    return msinference.inference(text, voices[voice], alpha=alpha_, beta=beta_, diffusion_steps=steps, embedding_scale=embedding_scale, speed=speed)
 
 @app.route("/ping", methods=['GET'])
 def ping():
@@ -76,13 +62,10 @@ def serve_wav():
     alpha_ = float(request.form.get('alpha')) 
     beta_ = float(request.form.get('beta'))
     speed = float(request.form.get('speed'))
-    stream_index = int(request.form.get('stream_index'))
     embedding_scale = float(request.form.get('embedding_scale'))
     parseRequestTime = time.time()
     audios = []
-    stream, index = streams[stream_index], stream_index
-    print("stream is", stream)
-    synth_audio = synthesize(text, steps, alpha_, beta_, request.form['voice'], speed, embedding_scale=1.0, stream=stream)
+    synth_audio = synthesize(text, steps, alpha_, beta_, request.form['voice'], speed, embedding_scale=1.0)
     synth_audio_time = time.time()
     if stream is None:
         return jsonify({"error": "All streams are busy"}), 503  # Service Unavailable
