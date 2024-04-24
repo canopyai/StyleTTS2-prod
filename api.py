@@ -73,7 +73,7 @@ async def simulate_inference():
 
 @app.post("/api/v1/static")
 async def serve_wav():
-    text = "Hello"
+    text = "Hello there, can you hear me?"
     steps = 10
     alpha = 0.1
     beta = 0.1
