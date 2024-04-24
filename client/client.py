@@ -28,7 +28,7 @@ def send_text_to_speech_request(stream_index):
     # Check if the request was successful
     if response.status_code == 200:
         # Generate a random file name
-        random_file_name = f"{uuid.uuid4().hex}.wav"
+        random_file_name = f"outputs/{uuid.uuid4().hex}.wav"
 
         # Write the audio data to the output file
         with open(random_file_name, 'wb') as f:
