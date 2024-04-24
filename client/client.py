@@ -2,7 +2,7 @@ import requests
 import time
 import concurrent.futures
 
-api_url = 'http://35.234.101.2:8000/api/v1/static'
+api_url = 'http://35.234.101.2:8080/api/v1/static'
 
 
 text = '''That's "great news"! Congratulations man!'''
@@ -49,7 +49,7 @@ def spam_requests(num_requests):
     return latencies
 
 # Number of concurrent requests
-num_requests = 1
+num_requests = 4
 
 # Calling the function to spam requests and measure latency
 spam_requests(num_requests)
