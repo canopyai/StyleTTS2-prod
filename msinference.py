@@ -13,13 +13,9 @@ random.seed(0)
 import numpy as np
 np.random.seed(0)
 
-# load packages
-import time
 import random
 import yaml
 from munch import Munch
-import numpy as np
-from torch import nn
 import torch.nn.functional as F
 import torchaudio
 import librosa
@@ -61,6 +57,8 @@ def compute_style(path):
 
     return torch.cat([ref_s, ref_p], dim=1)
 
+
+
 device = 'cpu'
 if torch.cuda.is_available():
     print("switching device 1")
@@ -73,58 +71,66 @@ elif torch.backends.mps.is_available():
 
 import phonemizer
 global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_punctuation=True,  with_stress=True)
-# phonemizer = Phonemizer.from_checkpoint(str(cached_path('https://public-asai-dl-models.s3.eu-central-1.amazonaws.com/DeepPhonemizer/en_us_cmudict_ipa_forward.pt')))
 
-config = yaml.safe_load(open(str(cached_path("hf://yl4579/StyleTTS2-LibriTTS/Models/LibriTTS/config.yml"))))
 
-ASR_config = config.get('ASR_config', False)
-ASR_path = config.get('ASR_path', False)
-text_aligner = load_ASR_models(ASR_path, ASR_config)
 
-# load pretrained F0 model
-F0_path = config.get('F0_path', False)
-pitch_extractor = load_F0_models(F0_path)
 
-# load BERT model
-from Utils.PLBERT.util import load_plbert
-BERT_path = config.get('PLBERT_dir', False)
-plbert = load_plbert(BERT_path)
+def initialize_and_load_model():
+    # Load configuration
+    config_path = "hf://yl4579/StyleTTS2-LibriTTS/Models/LibriTTS/config.yml"
+    config = yaml.safe_load(open(str(cached_path(config_path))))
 
-model_params = recursive_munch(config['model_params'])
-model = build_model(model_params, text_aligner, pitch_extractor, plbert)
-_ = [model[key].eval() for key in model]
-_ = [model[key].to(device) for key in model]
+    # Load models based on configuration
+    ASR_config = config.get('ASR_config', False)
+    ASR_path = config.get('ASR_path', False)
+    text_aligner = load_ASR_models(ASR_path, ASR_config)
 
-# params_whole = torch.load("Models/LibriTTS/epochs_2nd_00020.pth", map_location='cpu')
-params_whole = torch.load(str(cached_path("hf://yl4579/StyleTTS2-LibriTTS/Models/LibriTTS/epochs_2nd_00020.pth")), map_location='cpu')
-params = params_whole['net']
+    F0_path = config.get('F0_path', False)
+    pitch_extractor = load_F0_models(F0_path)
 
-for key in model:
-    if key in params:
-        print('%s loaded' % key)
-        try:
-            model[key].load_state_dict(params[key])
-        except:
-            from collections import OrderedDict
-            state_dict = params[key]
-            new_state_dict = OrderedDict()
-            for k, v in state_dict.items():
-                name = k[7:] # remove `module.`
-                new_state_dict[name] = v
-            # load params
-            model[key].load_state_dict(new_state_dict, strict=False)
-#             except:
-#                 _load(params[key], model[key])
-_ = [model[key].eval() for key in model]
+    BERT_path = config.get('PLBERT_dir', False)
+    plbert = load_plbert(BERT_path)
 
-from Modules.diffusion.sampler import DiffusionSampler, ADPM2Sampler, KarrasSchedule
+    # Prepare model parameters
+    model_params = recursive_munch(config['model_params'])
+    model = build_model(model_params, text_aligner, pitch_extractor, plbert)
 
-sampler = DiffusionSampler(
-    model.diffusion.diffusion,
-    sampler=ADPM2Sampler(),
-    sigma_schedule=KarrasSchedule(sigma_min=0.0001, sigma_max=3.0, rho=9.0), # empirical parameters
-    clamp=False
-)
+    # Set models to evaluation mode and to the appropriate device
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    _ = [model[key].eval() for key in model]
+    _ = [model[key].to(device) for key in model]
+
+    # Load model weights
+    params_path = "hf://yl4579/StyleTTS2-LibriTTS/Models/LibriTTS/epochs_2nd_00020.pth"
+    params_whole = torch.load(str(cached_path(params_path)), map_location=device)
+    params = params_whole['net']
+
+    for key in model:
+        if key in params:
+            try:
+                model[key].load_state_dict(params[key])
+            except RuntimeError as e:
+                # Handle module prefix if necessary
+                state_dict = params[key]
+                new_state_dict = OrderedDict((k.replace('module.', ''), v) for k, v in state_dict.items())
+                model[key].load_state_dict(new_state_dict, strict=False)
+
+    # Initialize DiffusionSampler
+    sampler = DiffusionSampler(
+        model.diffusion.diffusion,
+        sampler=ADPM2Sampler(),
+        sigma_schedule=KarrasSchedule(sigma_min=0.0001, sigma_max=3.0, rho=9.0),
+        clamp=False
+    )
+    
+    return model, sampler
+
+# Now you can use this function to initialize and load your model and sampler
+model, sampler = initialize_and_load_model()
+
+
+
+
 
 def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1, speed = 1, use_gruut=False, selected_device=0):
         text = text.strip()
