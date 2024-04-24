@@ -67,8 +67,6 @@ def serve_wav():
     audios = []
     synth_audio = synthesize(text, steps, alpha_, beta_, request.form['voice'], speed, embedding_scale=1.0)
     synth_audio_time = time.time()
-    if stream is None:
-        return jsonify({"error": "All streams are busy"}), 503  # Service Unavailable
 
     print(f"Time taken to synthesize audio: {synth_audio_time - parseRequestTime} seconds")
     audios.append(synth_audio)
