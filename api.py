@@ -1,4 +1,5 @@
-
+import eventlet
+eventlet.monkey_patch()
 import io
 from flask import Flask, Response, request, jsonify
 from scipy.io.wavfile import write
@@ -75,6 +76,7 @@ def serve_wav():
     parseRequestTime = time.time()
     audios = []
     stream, index = get_available_stream()
+    print("stream is", stream)
     synth_audio = synthesize(text, steps, alpha_, beta_, request.form['voice'], speed, embedding_scale=1.0, stream=stream)
     synth_audio_time = time.time()
     if stream is None:
