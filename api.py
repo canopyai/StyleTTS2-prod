@@ -2,16 +2,27 @@ import eventlet
 eventlet.monkey_patch()
 
 import io
-from flask import Flask, Response, request, jsonify
+
 from scipy.io.wavfile import write
 import numpy as np
 import msinference
 from flask_cors import CORS
 import time
 import torch
+from fastapi import FastAPI, Response
 import base64
+from pydantic import BaseModel
 
 
+class TextToSpeechRequest(BaseModel):
+    text: str
+    voice: str
+    steps: int
+    alpha: float
+    beta: float
+    speed: float
+    embedding_scale: float
+    device_index: int
 
 
 def genHeader(sampleRate, bitsPerSample, channels):
@@ -39,67 +50,29 @@ for v in voicelist:
     voices[v] = msinference.compute_style(f'voices/{v}.wav')
 print("Starting Flask app")
 
-app = Flask(__name__)
-cors = CORS(app)
+app = FastAPI()
 
 
 def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice = 'm-us-3', speed = 1.0, embedding_scale = 1.0, device_index = 0):
     return msinference.inference(text, voices[voice][device_index], alpha=alpha_, beta=beta_, diffusion_steps=steps, embedding_scale=embedding_scale, speed=speed, device_index =device_index)
 
-@app.route("/ping", methods=['GET'])
-def ping():
+@app.get("/ping")
+async def ping():
     return "Pong"
 
 
 
-@app.route("/api/v1/simulate", methods=['POST'])
-def simulate_inference():
-    if 'text' not in request.form or 'voice' not in request.form:
-        error_response = {'error': 'Missing required fields. Please include "text" and "voice" in your request.'}
-        return jsonify(error_response), 400
-    text = request.form['text'].strip()
-    steps = int(request.form.get('steps'))
-    alpha_ = float(request.form.get('alpha')) 
-    beta_ = float(request.form.get('beta'))
-    speed = float(request.form.get('speed'))
-    device_index = int(request.form.get('device_index'))
-    embedding_scale = float(request.form.get('embedding_scale'))
-    audios = []
-    sleep_time = 0.3
-    time.sleep(sleep_time)
-    return "response"
-
-
-
-@app.route("/api/v1/static", methods=['POST'])
-def serve_wav(): 
-    print("Received request")
-    startTime = time.time()
-    if 'text' not in request.form or 'voice' not in request.form:
-        error_response = {'error': 'Missing required fields. Please include "text" and "voice" in your request.'}
-        return jsonify(error_response), 400
-    text = request.form['text'].strip()
-    steps = int(request.form.get('steps'))
-    alpha_ = float(request.form.get('alpha')) 
-    beta_ = float(request.form.get('beta'))
-    speed = float(request.form.get('speed'))
-    device_index = int(request.form.get('device_index'))
-    embedding_scale = float(request.form.get('embedding_scale'))
-    parseRequestTime = time.time()
-    audios = []
-    synth_audio = synthesize(text, steps, alpha_, beta_, request.form['voice'], speed, embedding_scale=1.0, device_index=device_index)
-    synth_audio_time = time.time()
-
-    print(f"Time taken to synthesize audio: {synth_audio_time - parseRequestTime} seconds")
-    audios.append(synth_audio)
-    output_buffer = io.BytesIO()
-    write(output_buffer, 24000, np.concatenate(audios))
-    response = Response(output_buffer.getvalue())
-    response.headers["Content-Type"] = "audio/wav"
-    endTime = time.time()
-    writeTime = time.time()
-    print(f"Time taken to write audio: {writeTime - synth_audio_time} seconds")
-    print(f"Time taken: {endTime - startTime} seconds")
-    return response
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, threaded=False)
+@app.post("/api/v1/static")
+async def serve_wav(request: TextToSpeechRequest):
+    synth_audio = synthesize(
+        request.text, request.steps, request.alpha, request.beta, 
+        request.voice, request.speed, request.embedding_scale, request.device_index
+    )
+    write('result.wav', 24000, synth_audio)
+    sample_rate = 24000
+    buffer = io.BytesIO()
+    write(buffer, sample_rate, synth_audio)
+    buffer.seek(0)
+    base64_encoded = base64.b64encode(buffer.read()).decode('utf-8')
+    print(f"Time taken: {time.time() - startTime} seconds")
+    return {"audio_base64": base64_encoded}
