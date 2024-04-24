@@ -4,6 +4,7 @@ from cached_path import cached_path
 from models import build_model  # Assuming build_model is properly defined
 import numpy as np
 from nltk.tokenize import word_tokenize
+from munch import Munch
 
 # Setup configuration and utilities
 num_gpus = 8  # Total number of GPUs available
