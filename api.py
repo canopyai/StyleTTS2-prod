@@ -9,6 +9,7 @@ from flask_cors import CORS
 import time
 import torch
 
+print(torch.cuda.Stream())
 num_streams = 4
 streams = [torch.cuda.Stream() for _ in range(num_streams)]
 stream_usage = [False] * num_streams  # False means available

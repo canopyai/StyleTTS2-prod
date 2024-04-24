@@ -23,7 +23,7 @@ def send_text_to_speech_request():
     # Send POST request to the API
     response = requests.post(api_url, data=data)
    
-    print("***",response)
+    print("***",response.content)
 
 
 # Modified function to include timing
@@ -49,7 +49,7 @@ def spam_requests(num_requests):
     return latencies
 
 # Number of concurrent requests
-num_requests = 10
+num_requests = 2
 
 # Calling the function to spam requests and measure latency
 spam_requests(num_requests)
