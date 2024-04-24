@@ -10,6 +10,7 @@ from flask_cors import CORS
 import time
 import torch
 from fastapi import FastAPI, Response
+import base64
 
 
 
@@ -82,18 +83,11 @@ async def serve_wav():
     embedding_scale = 1.0
     voice = "m-us-3"
 
-    parse_request_time = time.time()
     synth_audio = synthesize(text, steps, alpha, beta, voice, speed, embedding_scale, device_index)
     write('result.wav', 24000, synth_audio)
-    print(synth_audio)
-
-    synth_audio_time = time.time()
-
-    print(f"Time taken to synthesize audio: {synth_audio_time - parse_request_time} seconds")
-
-    output_buffer = io.BytesIO()
-    # Assume audio sample rate is 24000 Hz, update accordingly
-    write(output_buffer, 24000, synth_audio.astype(np.int16))
-    output_buffer.seek(0)  # Rewind buffer to the beginning
-
-    return Response(content=output_buffer.getvalue(), media_type="audio/wav")
+    sample_rate = 24000
+    buffer = io.BytesIO()
+    write(buffer, sample_rate, synth_audio)
+    buffer.seek(0)
+    base64_encoded = base64.b64encode(buffer.read()).decode('utf-8')
+    return {"audio_base64": base64_encoded}
