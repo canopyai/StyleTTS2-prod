@@ -78,7 +78,6 @@ def serve_wav():
     writeTime = time.time()
     print(f"Time taken to write audio: {writeTime - synth_audio_time} seconds")
     print(f"Time taken: {endTime - startTime} seconds")
-    release_stream(index)
     return response
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, threaded=False)
