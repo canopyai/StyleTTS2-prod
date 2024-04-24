@@ -168,9 +168,9 @@ def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding
         
         device = device_names[device_index]
         
-        model = model_dicts[0]["model"]
-        sampler = model_dicts[0]["sampler"]
-        model_params = model_dicts[0]["model_params"]
+        model = model_dicts[device_index]["model"]
+        sampler = model_dicts[device_index]["sampler"]
+        model_params = model_dicts[device_index]["model_params"]
         
 
         text = text.strip()
