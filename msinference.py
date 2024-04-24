@@ -134,6 +134,8 @@ def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding
         tokens.insert(0, 0)
         tokens = torch.LongTensor(tokens).to(device).unsqueeze(0)
 
+        print("in inderence using stream", stream)
+
         with torch.no_grad(), torch.cuda.stream(stream):
             input_lengths = torch.LongTensor([tokens.shape[-1]]).to(device)
             text_mask = length_to_mask(input_lengths).to(device)

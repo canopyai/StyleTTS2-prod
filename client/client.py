@@ -50,7 +50,7 @@ def spam_requests(num_requests):
     return latencies
 
 # Number of concurrent requests
-num_requests = 4
+num_requests = 2
 
 # Calling the function to spam requests and measure latency
 spam_requests(num_requests)
