@@ -127,10 +127,10 @@ def initialize_and_load_model():
         clamp=False
     )
     
-    return model, sampler
+    return model, sampler, model_params
 
 # Now you can use this function to initialize and load your model and sampler
-model, sampler = initialize_and_load_model()
+model, sampler, model_params = initialize_and_load_model()
 
 
 
