@@ -56,8 +56,8 @@ def compute_style(path):
 
     voice_tensors = []
 
-    # for device_index in range(len(device_names)):
-    for device_index in range(1):
+    for device_index in range(len(device_names)):
+
         model = model_dicts[device_index]["model"]
         print("starting to compute the style")
         wave, sr = librosa.load(path, sr=24000)
@@ -147,7 +147,7 @@ device_names = get_device_names()
 
 model_dicts = []
 
-for device_name in device_names[0:1]:    
+for device_name in device_names:    
     print(f"Initializing model on {device_name}")
     model, sampler, model_params = initialize_and_load_model(device_name)
     model_dicts.append({

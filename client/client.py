@@ -12,6 +12,8 @@ api_url = 'http://35.234.101.2:8080/api/v1/static'
 text = '''That's "great news"! Congratulations man!'''
 
 
+
+
 def send_text_to_speech_request(stream_index):
     data = {
         'text': "Your text to convert to speech", 
