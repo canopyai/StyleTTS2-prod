@@ -1,7 +1,7 @@
 import requests
 
 # URL of the Flask API
-url = 'http://localhost:5000/api/v1/static'
+url = 'http://34.32.135.27:8080/api/v1/static'
 
 # Data to be sent to the API
 data = {
