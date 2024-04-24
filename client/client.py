@@ -15,8 +15,8 @@ text = '''That's "great news"! Congratulations man!'''
 
 
 def send_text_to_speech_request(stream_index):
-    sleep_time = 0.1 * stream_index
-    time.sleep(sleep_time)
+    # sleep_time = 0.1 * stream_index
+    # time.sleep(sleep_time)
     startTime = time.time()
     data = {
         'text': "Your text to convert to speech", 
