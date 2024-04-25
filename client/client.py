@@ -25,7 +25,7 @@ def send_text_to_speech_request(stream_index):
     data = {
         'text': "Your text to convert to speech", 
         'voice': "m-us-3",
-        'steps': 10,
+        'steps': 7,
         'alpha': 0.2,
         'beta': 0.7,
         'speed': 0.8,
