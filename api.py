@@ -1,8 +1,6 @@
 import eventlet
 eventlet.monkey_patch()
-
 import io
-
 from scipy.io.wavfile import write
 import numpy as np
 import msinference
@@ -45,10 +43,10 @@ def genHeader(sampleRate, bitsPerSample, channels):
 voicelist = ['f-us-1', 'f-us-2', 'f-us-3', 'f-us-4', 'm-us-1', 'm-us-2', 'm-us-3', 'm-us-4']
 voices = {}
 
-print("Computing voices")
 for v in voicelist:
     voices[v] = msinference.compute_style(f'voices/{v}.wav')
-print("Starting Flask app")
+
+print("Finished Computing Voice Embeddings")
 
 app = FastAPI()
 
@@ -61,13 +59,26 @@ async def ping():
     return "Pong"
 
 
+device_index_tracker = 0
+
+def get_device_index():
+    if(device_index_tracker == 8):
+        device_index_tracker = 0
+
+    device_index_tracker = device_index_tracker +1
+
+    return device_index_tracker
+    
+
+
+
 
 @app.post("/api/v1/static")
 async def serve_wav(request: TextToSpeechRequest):
     startTime = time.time()
     synth_audio = synthesize(
         request.text, request.steps, request.alpha, request.beta, 
-        request.voice, request.speed, request.embedding_scale, request.device_index
+        request.voice, request.speed, request.embedding_scale, get_device_index()
     )
     write('result.wav', 24000, synth_audio)
     sample_rate = 24000

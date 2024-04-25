@@ -8,6 +8,10 @@ import base64
 api_url = 'http://35.234.101.2:8080/api/v1/static'
 # api_url = 'http://127.0.0.1:8080/api/v1/static'
 
+#v100s
+# api_url = 'http://35.204.162.196:8080/api/v1/static'
+
+
 
 text = '''That's "great news"! Congratulations man!'''
 
