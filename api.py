@@ -20,7 +20,6 @@ class TextToSpeechRequest(BaseModel):
     beta: float
     speed: float
     embedding_scale: float
-    device_index: int
 
 
 def genHeader(sampleRate, bitsPerSample, channels):

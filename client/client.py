@@ -30,7 +30,6 @@ def send_text_to_speech_request(stream_index):
         'beta': 0.7,
         'speed': 0.8,
         "embedding_scale": 1,
-        "device_index": stream_index,
     }
 
     try:
