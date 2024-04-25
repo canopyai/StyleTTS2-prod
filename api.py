@@ -60,11 +60,13 @@ async def ping():
 
 device_index_tracker = 0
 
+number_of_devices = torch.cuda.device_count()
+
 def get_device_index():
     global device_index_tracker
 
     device_index_tracker = device_index_tracker +1
-    if(device_index_tracker == 8):
+    if(device_index_tracker == number_of_devices):
         device_index_tracker = 0
 
     return device_index_tracker
