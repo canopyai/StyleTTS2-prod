@@ -23,8 +23,8 @@ def send_text_to_speech_request(stream_index):
     # time.sleep(sleep_time)
     startTime = time.time()
     data = {
-        'text': "Your text to convert to speech", 
-        'voice': "m-us-3",
+        'text': "That seems like it worked pretty darn well.", 
+        'voice': "m-us-1",
         'steps': 7,
         'alpha': 0.2,
         'beta': 0.7,
@@ -39,8 +39,8 @@ def send_text_to_speech_request(stream_index):
             audio_data = base64.b64decode(audio_base64)
             random_file_name = f"outputs/{uuid.uuid4().hex}.wav"
             os.makedirs(os.path.dirname(random_file_name), exist_ok=True)
-            # with open(random_file_name, 'wb') as f:
-            #     f.write(audio_data)
+            with open(random_file_name, 'wb') as f:
+                f.write(audio_data)
             end_time = time.time()
             print(f"Time taken: {end_time - startTime} seconds")
         else:
@@ -64,7 +64,7 @@ def spam_requests(num_requests):
 
 
 # Number of concurrent requests
-num_requests = 4
+num_requests = 1
 
 # Calling the function to spam requests and measure latency
 spam_requests(num_requests)
