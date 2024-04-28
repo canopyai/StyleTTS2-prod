@@ -106,7 +106,7 @@ def initialize_and_load_model(device='cpu'):
     _ = [model[key].to(device) for key in model]
 
     # Load model weights
-    params_path = "hf://yl4579/StyleTTS2-LibriTTS/Models/LibriTTS/epochs_2nd_00020.pth"
+    params_path = "Models/FT27_04_24_weights/epoch_2nd_00019.pth"
     params_whole = torch.load(str(cached_path(params_path)), map_location=device)
     params = params_whole['net']
 
