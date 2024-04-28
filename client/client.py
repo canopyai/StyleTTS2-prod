@@ -18,7 +18,7 @@ text = '''That's "great news"! Congratulations man!'''
 
 
 
-def send_text_to_speech_request(stream_index):
+def send_text_to_speech_request():
     # sleep_time = 0.1 * stream_index
     # time.sleep(sleep_time)
     startTime = time.time()
