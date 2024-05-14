@@ -41,7 +41,7 @@ def genHeader(sampleRate, bitsPerSample, channels):
     o += (datasize).to_bytes(4, "little")
     return o
 
-voicelist = ["neutral", "whisper", "user"]
+voicelist = ["neutral", "whisper", "user", "brit"]
 voices = {}
 
 for v in voicelist:
@@ -112,6 +112,7 @@ async def process_speaker(request: SpeakerRequest):
     audio = audio.reshape(1, -1)
     audio = torch.tensor(audio)
     write('voices/user.wav', 24000)
+    print("Computing Voice Embeddings")
     voice = msinference.compute_style("voices/user.wav")
     voices["user"] = voice
     return {"status": "success"}
