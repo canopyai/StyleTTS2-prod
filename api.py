@@ -39,7 +39,7 @@ def genHeader(sampleRate, bitsPerSample, channels):
     o += (datasize).to_bytes(4, "little")
     return o
 
-voicelist = ['f-us-1', 'f-us-2', 'f-us-3', 'f-us-4', 'm-us-1', 'm-us-2', 'm-us-3', 'm-us-4']
+voicelist = ["neutral.wav", "whisper.wav", "speaker.wav"]
 voices = {}
 
 for v in voicelist:
@@ -50,8 +50,17 @@ print("Finished Computing Voice Embeddings")
 app = FastAPI()
 
 
-def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice = 'm-us-3', speed = 1.0, embedding_scale = 1.0, device_index = 0):
-    return msinference.inference(text, voices[voice][device_index], alpha=alpha_, beta=beta_, diffusion_steps=steps, embedding_scale=embedding_scale, speed=speed, device_index =device_index)
+def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice_vector = [1,0,0], speed = 1.0, embedding_scale = 1.0, device_index = 0):
+    #compute the voice style
+
+    style = None
+
+    for i, v in enumerate(voice_vector):
+        sel_style = voices[voicelist[i]]
+        style_scaled = sel_style * v
+        style = style + style_scaled if style is not None else style_scaled
+
+    return msinference.inference(text, style, alpha=alpha_, beta=beta_, diffusion_steps=steps, embedding_scale=embedding_scale, speed=speed, device_index =device_index)
 
 @app.get("/ping")
 async def ping():

@@ -5,35 +5,40 @@ import uuid
 import os
 import base64
 
-api_url = 'http://34.91.134.10:8080/api/v1/static'
+# api_url = 'http://34.34.9.101:8080/api/v1/static'
 # api_url = 'http://127.0.0.1:8080/api/v1/static'
 
 #v100s
-# api_url = 'http://35.204.162.196:8080/api/v1/static'
+api_url = 'http://34.91.134.10:8080/api/v1/static'
 
 
 
-text = '''That's "great news"! Congratulations man!'''
+texts = [
+      '''1. 2. 3. 4. 5. 6. 7. 8. 9. 10.''', 
+    ]
 
 
 
 
-def send_text_to_speech_request():
+
+def send_text_to_speech_request(text):
+    print("sending request")
     # sleep_time = 0.1 * stream_index
     # time.sleep(sleep_time)
     startTime = time.time()
     data = {
-        'text': "That seems like it worked pretty darn well.", 
+        'text': text, 
         'voice': "m-us-1",
-        'steps': 7,
-        'alpha': 0.2,
+        'steps': 20,
+        'alpha': 0.3,
         'beta': 0.7,
-        'speed': 0.8,
-        "embedding_scale": 1,
+        'speed': 1,
+        "embedding_scale":1,
     }
 
     try:
         response = requests.post(api_url, json=data)  # Use json=data if API expects JSON
+
         if response.status_code == 200:
             audio_base64 = response.json()['audio_base64']
             audio_data = base64.b64decode(audio_base64)
@@ -63,8 +68,5 @@ def spam_requests(num_requests):
         futures = [executor.submit(timed_send_text_to_speech_request, startTime, _) for _ in range(num_requests)]
 
 
-# Number of concurrent requests
-num_requests = 1
-
-# Calling the function to spam requests and measure latency
-spam_requests(num_requests)
+for text in texts:
+    send_text_to_speech_request(text)
