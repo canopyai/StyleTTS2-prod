@@ -14,7 +14,7 @@ api_url = 'http://34.91.134.10:8080/api/v1/static'
 
 
 texts = [
-      '''1. 2. 3. 4. 5. 6. 7. 8. 9. 10.''', 
+      '''Okay I am going to copy your voice now then.''', 
     ]
 
 
@@ -29,9 +29,9 @@ def send_text_to_speech_request(text):
     data = {
         'text': text, 
         'voice': [0, 0, 1],
-        'steps': 20,
-        'alpha': 0.3,
-        'beta': 0.7,
+        'steps': 13,
+        'alpha': 0,
+        'beta': 1,
         'speed': 1,
         "embedding_scale":1,
     }
