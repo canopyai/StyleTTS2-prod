@@ -57,7 +57,7 @@ def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice_vector = [1,0,
 
     for i, v in enumerate(voice_vector):
         print("voice_vector", i, v)
-        sel_style = voices[voicelist[i][device_index]]
+        sel_style = voices[voicelist[i]][device_index]
         print("sel_style.shape", sel_style)
         style_scaled = sel_style * v
         style = style + style_scaled if style is not None else style_scaled
