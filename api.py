@@ -41,7 +41,7 @@ def genHeader(sampleRate, bitsPerSample, channels):
     o += (datasize).to_bytes(4, "little")
     return o
 
-voicelist = ["neutral", "whisper"]
+voicelist = ["neutral", "whisper", "user"]
 voices = {}
 
 for v in voicelist:
