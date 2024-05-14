@@ -5,7 +5,7 @@ import base64
 api_url = 'http://34.91.134.10:8080/api/v1/speaker'
 
 # Path to the audio file you want to send
-audio_file_path = './user.wav'
+audio_file_path = './brit.wav'
 
 def send_speaker_request(audio_file_path):
     try:

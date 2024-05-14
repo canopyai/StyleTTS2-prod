@@ -58,13 +58,9 @@ def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice_vector = [1,0,
     style = None
 
     for i, v in enumerate(voice_vector):
-        print("voice_vector", i, v)
         sel_style = voices[voicelist[i]][device_index]
-        print("sel_style.shape", sel_style)
         style_scaled = sel_style * v
         style = style + style_scaled if style is not None else style_scaled
-
-    print("style.shape", style.shape)
 
     return msinference.inference(text, style, alpha=alpha_, beta=beta_, diffusion_steps=steps, embedding_scale=embedding_scale, speed=speed, device_index =device_index)
 
