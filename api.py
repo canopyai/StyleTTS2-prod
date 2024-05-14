@@ -107,15 +107,32 @@ async def serve_wav(request: TextToSpeechRequest):
     return {"audio_base64": base64_encoded}
 
 
+
 @app.post("/api/v1/speaker")
 async def process_speaker(request: SpeakerRequest):
-    audio = base64.b64decode(request.b64)
-    audio = np.frombuffer(audio, dtype=np.int16)
-    audio = audio.astype(np.float32)
-    audio = audio / 32768.0
-    audio = audio.reshape(1, -1)
-    audio = torch.tensor(audio)
-    write('voices/user.wav', 16000, audio.numpy())
-    voice = msinference.compute_style("voices/user.wav")
-    voices["user"] = voice
-    return {"status": "success"}
+    try:
+        # Decode the base64 encoded audio
+        audio = base64.b64decode(request.b64)
+        
+        # Convert byte data to numpy array with int16 format
+        audio_np = np.frombuffer(audio, dtype=np.int16)
+        
+        # Convert numpy array to float32 and normalize
+        audio_np = audio_np.astype(np.float32) / 32768.0
+        
+        # Reshape the audio data
+        audio_tensor = torch.tensor(audio_np).unsqueeze(0)
+        
+        # Save the audio data as a WAV file
+        output_file_path = 'voices/user.wav'
+        write(output_file_path, 16000, (audio_np * 32768).astype(np.int16))
+        
+        # Compute the style from the saved WAV file
+        voice_style = msinference.compute_style(output_file_path)
+        
+        # Store the voice style
+        voices["user"] = voice_style
+        
+        return {"status": "success"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}

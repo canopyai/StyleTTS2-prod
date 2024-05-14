@@ -1,6 +1,5 @@
 import requests
 import base64
-import os
 
 # API URL for the speaker processing endpoint
 api_url = 'http://34.91.134.10:8080/api/v1/speaker'
