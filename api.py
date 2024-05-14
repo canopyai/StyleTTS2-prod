@@ -56,13 +56,26 @@ def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice_vector = [1,0,
     #compute the voice style
 
     style = None
+    model_name = "tune"
 
     for i, v in enumerate(voice_vector):
         sel_style = voices[voicelist[i]][device_index]
         style_scaled = sel_style * v
         style = style + style_scaled if style is not None else style_scaled
 
-    return msinference.inference(text, style, alpha=alpha_, beta=beta_, diffusion_steps=steps, embedding_scale=embedding_scale, speed=speed, device_index =device_index)
+    if(voice_vector[3] == 1):
+        style = voices["user"][device_index]
+        model_name = "base"
+
+    return msinference.inference(
+                                text, style,
+                                alpha=alpha_, 
+                                beta=beta_, diffusion_steps=steps, 
+                                embedding_scale=embedding_scale, 
+                                speed=speed, 
+                                device_index =device_index, 
+                                model_name=model_name
+                                )
 
 @app.get("/ping")
 async def ping():

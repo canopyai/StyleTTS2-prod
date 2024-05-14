@@ -80,7 +80,7 @@ def compute_style(path):
 
 
 
-def initialize_and_load_model(device='cpu'):
+def initialize_and_load_model(device='cpu', params_path="Models/FT27_04_24_weights/epoch_2nd_00019.pth"):
     # Load configuration
     config_path = "hf://yl4579/StyleTTS2-LibriTTS/Models/LibriTTS/config.yml"
     with open(str(cached_path(config_path)), 'r') as file:
@@ -106,7 +106,6 @@ def initialize_and_load_model(device='cpu'):
     _ = [model[key].to(device) for key in model]
 
     # Load model weights
-    params_path = "Models/FT27_04_24_weights/epoch_2nd_00019.pth"
     params_whole = torch.load(str(cached_path(params_path)), map_location=device)
     params = params_whole['net']
 
@@ -137,16 +136,28 @@ def initialize_and_load_model(device='cpu'):
 device_names = get_device_names()
 
 model_dicts = []
+base_model_dicts = []
+model_obj = {}
 
 for device_name in device_names:    
     print(f"Initializing model on {device_name}")
-    model, sampler, model_params = initialize_and_load_model(device_name)
+    model, sampler, model_params = initialize_and_load_model(device_name, "Models/FT27_04_24_weights/epoch_2nd_00019.pth")
+    base_model, base_sampler, base_model_params = initialize_and_load_model(device_name, "Models/FT27_04_24_weights/epoch_2nd_00019.pth")
     model_dicts.append({
         "device_name": device_name,
         "model": model,
         "sampler": sampler,
         "model_params": model_params, 
     })
+    base_model_dicts.append({
+        "device_name": device_name,
+        "model": base_model,
+        "sampler": base_sampler,
+        "model_params": base_model_params, 
+    })
+
+    model_obj["tune"] = model_dicts
+    model_obj["base"] = base_model_dicts
 
 
 
@@ -156,15 +167,17 @@ for device_name in device_names:
 
 
 
-def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1, speed = 1, use_gruut=False, device_index=0):
-        
-        print(f"Using device {device_index}")
+
+
+def inference(text, ref_s, alpha = 0.3, beta = 0.7, diffusion_steps=5, embedding_scale=1, speed = 1, use_gruut=False, device_index=0, model_name="tune"):
         
         device = device_names[device_index]
+
+        model_sel_dicts = model_obj[model_name]
         
-        model = model_dicts[device_index]["model"]
-        sampler = model_dicts[device_index]["sampler"]
-        model_params = model_dicts[device_index]["model_params"]
+        model = model_sel_dicts[device_index]["model"]
+        sampler = model_sel_dicts[device_index]["sampler"]
+        model_params = model_sel_dicts[device_index]["model_params"]
         
 
         text = text.strip()
