@@ -64,7 +64,6 @@ def synthesize(text, steps = 10, alpha_ = 0.1, beta_ = 0.1, voice_vector = [1,0,
         style = style + style_scaled if style is not None else style_scaled
 
     if(voice_vector[2] == 1):
-        style = voices["user"][device_index]
         model_name = "base"
 
     return msinference.inference(
