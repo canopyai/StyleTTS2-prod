@@ -115,7 +115,7 @@ async def process_speaker(request: SpeakerRequest):
     audio = audio / 32768.0
     audio = audio.reshape(1, -1)
     audio = torch.tensor(audio)
-    voice = msinference.compute_style_from_audio(audio)
+    write('voices/user.wav', 24000, voice)
+    voice = msinference.compute_style("voices/user.wav")
     voices["user"] = voice
     return {"status": "success"}
-   
