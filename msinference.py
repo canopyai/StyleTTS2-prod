@@ -107,6 +107,7 @@ def initialize_and_load_model(device='cpu', params_path="Models/FT27_04_24_weigh
 
     # Load model weights
     params_whole = torch.load(str(cached_path(params_path)), map_location=device)
+
     params = params_whole['net']
 
     for key in model:
@@ -142,7 +143,7 @@ model_obj = {}
 for device_name in device_names:    
     print(f"Initializing model on {device_name}")
     model, sampler, model_params = initialize_and_load_model(device_name, "Models/FT27_04_24_weights/epoch_2nd_00019.pth")
-    base_model, base_sampler, base_model_params = initialize_and_load_model(device_name, "Models/FT27_04_24_weights/epoch_2nd_00019.pth")
+    base_model, base_sampler, base_model_params = initialize_and_load_model(device_name, "hf://yl4579/StyleTTS2-LibriTTS/Models/LibriTTS/epochs_2nd_00020.pth")
     model_dicts.append({
         "device_name": device_name,
         "model": model,
