@@ -14,7 +14,7 @@ from pydantic import BaseModel
 
 class TextToSpeechRequest(BaseModel):
     text: str
-    voice: str
+    voice: list
     steps: int
     alpha: float
     beta: float
