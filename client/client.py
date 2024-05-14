@@ -28,7 +28,7 @@ def send_text_to_speech_request(text):
     startTime = time.time()
     data = {
         'text': text, 
-        'voice': [1, 0, 0],
+        'voice': [0.2, 0.8, 0],
         'steps': 20,
         'alpha': 0.3,
         'beta': 0.7,

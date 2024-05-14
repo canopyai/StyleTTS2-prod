@@ -21,6 +21,8 @@ class TextToSpeechRequest(BaseModel):
     speed: float
     embedding_scale: float
 
+class SpeakerRequest(BaseModel):
+    b64: str
 
 def genHeader(sampleRate, bitsPerSample, channels):
     datasize = 2000 * 10**6
@@ -103,3 +105,17 @@ async def serve_wav(request: TextToSpeechRequest):
     base64_encoded = base64.b64encode(buffer.read()).decode('utf-8')
     print(f"Time taken: {time.time() - startTime} seconds")
     return {"audio_base64": base64_encoded}
+
+
+@app.post("/api/v1/speaker")
+async def process_speaker(request: SpeakerRequest):
+    audio = base64.b64decode(request.b64)
+    audio = np.frombuffer(audio, dtype=np.int16)
+    audio = audio.astype(np.float32)
+    audio = audio / 32768.0
+    audio = audio.reshape(1, -1)
+    audio = torch.tensor(audio)
+    voice = msinference.compute_style_from_audio(audio)
+    voices["user"] = voice
+    return {"status": "success"}
+   
