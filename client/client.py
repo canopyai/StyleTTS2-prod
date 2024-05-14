@@ -14,7 +14,7 @@ api_url = 'http://34.91.134.10:8080/api/v1/static'
 
 
 texts = [
-      '''Okay I am going to copy your voice now then.''', 
+      '''I will try to speak in a British accent.''', 
     ]
 
 
