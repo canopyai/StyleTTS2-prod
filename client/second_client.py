@@ -1,5 +1,6 @@
 import requests
 import base64
+import soundfile as sf
 
 # API URL for the speaker processing endpoint
 api_url = 'http://34.91.134.10:8080/api/v1/speaker'
@@ -10,14 +11,18 @@ audio_file_path = './brit.wav'
 def send_speaker_request(audio_file_path):
     try:
         # Read the audio file and encode it to base64
-        with open(audio_file_path, 'rb') as audio_file:
-            audio_bytes = audio_file.read()
-            audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
 
-        # Prepare the payload
+        audio, sr = sf.read(audio_file_path)
+
+        audio_resampled = sf.resample(audio, sr, 24000)
+
+        # Encode the resampled audio to base64
+        audio_base64 = base64.b64encode(audio_resampled.tobytes()).decode('utf-8')
+
         data = {
-            'b64': audio_base64
+            "b64": audio_base64
         }
+                
 
         # Send the POST request to the server
         response = requests.post(api_url, json=data)
