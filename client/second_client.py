@@ -35,4 +35,4 @@ def send_speaker_request(audio_file_path):
         print(f"An error occurred: {e}")
 
 # Send the speaker request
-# send_speaker_request(audio_file_path)
+send_speaker_request(audio_file_path)
