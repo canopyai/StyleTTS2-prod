@@ -2,7 +2,7 @@ import requests
 import base64
 
 # API URL for the speaker processing endpoint
-api_url = 'http://34.91.134.10:8080/api/v1/speaker'
+api_url = 'http://34.34.9.101:8080/api/v1/speaker'
 
 # Path to the audio file you want to send
 audio_file_path = './brit.wav'

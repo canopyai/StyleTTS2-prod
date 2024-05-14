@@ -9,7 +9,7 @@ import base64
 # api_url = 'http://127.0.0.1:8080/api/v1/static'
 
 #v100s
-api_url = 'http://34.91.134.10:8080/api/v1/static'
+api_url = 'http://34.34.9.101:8080/api/v1/static'
 
 
 
